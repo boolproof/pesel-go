@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	GenderFemale     = "female"
-	GenderMale       = "male"
-	InvalidCodeError = "invalid PESEL"
+	GenderFemale = "female"
+	GenderMale   = "male"
 )
+
+const InvalidCodeError = "invalid PESEL"
 
 type Pesel struct {
 	code      string
@@ -63,10 +64,10 @@ func NewPesel(code string) (Pesel, error) {
 		return pesel, e
 	}
 
-	var year, month, centuryMod int
-	centuryMod = intParts.month / 20
-	month = intParts.month - centuryMod*20
-	switch centuryMod {
+	var year int
+	mod := intParts.month / 20
+	month := intParts.month - mod*20
+	switch mod {
 	case 0:
 		year = 1900 + intParts.year
 	case 1:
@@ -79,19 +80,9 @@ func NewPesel(code string) (Pesel, error) {
 		year = 1800 + intParts.year
 	}
 
-	layout := "2006-01-02"
-	str := fmt.Sprintf("%04d-%02d-%02d", year, month, intParts.day)
-	birthDate, err := time.Parse(layout, str)
+	birthDate, err := time.Parse("20060102", fmt.Sprintf("%04d%02d%02d", year, month, intParts.day))
 
-	if err != nil {
-		return pesel, e
-	}
-
-	if intParts.sequence == 0 {
-		return pesel, e
-	}
-
-	if !validateCheckSum(code) {
+	if err != nil || intParts.sequence == 0 || !validateCheckSum(code) {
 		return pesel, e
 	}
 
