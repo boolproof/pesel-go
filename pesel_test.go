@@ -1,6 +1,9 @@
 package pesel
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 type testCase struct {
 	title        string
@@ -63,8 +66,9 @@ func TestNewPesel(t *testing.T) {
 				t.Errorf("error should be nil (%s)", tc.title)
 			}
 			if p.BirthDate() != nil {
-				if p.BirthDate().Format("2006-01-02") != tc.expBirthDate {
-					t.Errorf("expected birth date: %s, got: %s", tc.expBirthDate, p.birthDate.Format("2006-01-02"))
+				bd := fmt.Sprintf("%04d-%02d-%02d", p.BirthDate().Year, p.BirthDate().Month, p.BirthDate().Day)
+				if bd != tc.expBirthDate {
+					t.Errorf("expected birth date: %s, got: %s", tc.expBirthDate, bd)
 				}
 			} else {
 				t.Error("expected not nil birth date")

@@ -15,7 +15,13 @@ const (
 type Pesel struct {
 	code      string
 	gender    string
-	birthDate *time.Time
+	birthDate *Date
+}
+
+type Date struct {
+	Year  int
+	Month time.Month
+	Day   int
 }
 
 func (p Pesel) Code() string {
@@ -26,7 +32,7 @@ func (p Pesel) Gender() string {
 	return p.gender
 }
 
-func (p Pesel) BirthDate() *time.Time {
+func (p Pesel) BirthDate() *Date {
 	return p.birthDate
 }
 
@@ -81,7 +87,11 @@ func NewPesel(code string) (Pesel, error) {
 	}
 
 	p.code = code
-	p.birthDate = &bd
+	p.birthDate = &Date{
+		Year:  bd.Year(),
+		Month: bd.Month(),
+		Day:   bd.Day(),
+	}
 
 	if ds[9]%2 == 0 {
 		p.gender = GenderFemale
