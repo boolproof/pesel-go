@@ -24,7 +24,7 @@ type Date struct {
 	Day   int
 }
 
-//Code returns PESEL number of Pesel if number is valid (empty string otherwise)
+//Number returns PESEL number of Pesel if number is valid (empty string otherwise)
 func (p Pesel) Number() string {
 	return p.number
 }
@@ -39,7 +39,7 @@ func (p Pesel) BirthDate() *Date {
 	return p.birthDate
 }
 
-//NewPesel creates new Pesel struct with values based on argument if it's valid
+//NewPesel creates new Pesel struct with values (gender, birthdate) extracted from argument number if it's valid
 func NewPesel(number string) (Pesel, error) {
 	p := Pesel{}
 	e := errors.New("invalid PESEL")
