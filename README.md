@@ -1,3 +1,4 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/boolproof/pesel-go.svg)](https://pkg.go.dev/github.com/boolproof/pesel-go)
 [![Go Report Card](https://goreportcard.com/badge/github.com/boolproof/pesel-go)](https://goreportcard.com/report/github.com/boolproof/pesel-go)
 
 # PESEL number validator
