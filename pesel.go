@@ -12,8 +12,6 @@ const (
 	GenderMale   = "male"
 )
 
-const InvalidCodeError = "invalid PESEL"
-
 type Pesel struct {
 	code      string
 	gender    string
@@ -32,141 +30,64 @@ func (p Pesel) BirthDate() *time.Time {
 	return p.birthDate
 }
 
-type parts struct {
-	year     string
-	month    string
-	day      string
-	sequence string
-	gender   string
-	checkSum string
-}
-
-type intParts struct {
-	year     int
-	month    int
-	day      int
-	sequence int
-	gender   int
-	checkSum int
-}
-
 func NewPesel(code string) (Pesel, error) {
-	pesel := Pesel{}
-	e := errors.New(InvalidCodeError)
+	p := Pesel{}
+	e := errors.New("invalid PESEL")
 
-	parts, err := newParts(code)
-	if err != nil {
-		return pesel, e
+	if len(code) != 11 {
+		return p, e
 	}
 
-	intParts, err := newIntParts(parts)
-	if err != nil {
-		return pesel, e
+	ws := []int{1, 3, 7, 9, 1, 3, 7, 9, 1, 3, 1}
+	ds := make([]int, 0, 11)
+	var sum int
+
+	for i := 0; i < 11; i++ {
+		ch := string(code[i])
+		d, err := strconv.Atoi(ch)
+		if err != nil {
+			return p, e
+		}
+		ds = append(ds, d)
+		sum += d * ws[i]
 	}
+
+	if sum%10 != 0 {
+		return p, e
+	}
+
+	y, m := 10*ds[0]+ds[1], 10*ds[2]+ds[3]
 
 	var year int
-	mod := intParts.month / 20
-	month := intParts.month - mod*20
+	mod := m / 20
+	month := m - mod*20
 	switch mod {
 	case 0:
-		year = 1900 + intParts.year
+		year = 1900 + y
 	case 1:
-		year = 2000 + intParts.year
+		year = 2000 + y
 	case 2:
-		year = 2100 + intParts.year
+		year = 2100 + y
 	case 3:
-		year = 2200 + intParts.year
+		year = 2200 + y
 	case 4:
-		year = 1800 + intParts.year
+		year = 1800 + y
 	}
 
-	birthDate, err := time.Parse("20060102", fmt.Sprintf("%04d%02d%02d", year, month, intParts.day))
+	bd, err := time.Parse("20060102", fmt.Sprintf("%04d%02d%02d", year, month, 10*ds[4]+ds[5]))
 
-	if err != nil || intParts.sequence == 0 || !validateCheckSum(code) {
-		return pesel, e
+	if err != nil || 100*ds[6]+10*ds[7]+ds[8] == 0 {
+		return p, e
 	}
 
-	pesel.code = code
-	pesel.birthDate = &birthDate
+	p.code = code
+	p.birthDate = &bd
 
-	if intParts.gender%2 == 0 {
-		pesel.gender = GenderFemale
+	if ds[9]%2 == 0 {
+		p.gender = GenderFemale
 	} else {
-		pesel.gender = GenderMale
+		p.gender = GenderMale
 	}
 
-	return pesel, nil
-}
-
-func validateCheckSum(code string) bool {
-	w := []int{1, 3, 7, 9, 1, 3, 7, 9, 1, 3, 1}
-	sum := 0
-	for i := 0; i < 11; i++ {
-		d, _ := strconv.Atoi(code[i : i+1])
-		sum += w[i] * d
-	}
-
-	if sum%10 == 0 {
-		return true
-	}
-
-	return false
-}
-
-func newParts(code string) (parts, error) {
-	if len(code) != 11 {
-		return parts{}, errors.New(InvalidCodeError)
-	}
-
-	return parts{
-		year:     code[0:2],
-		month:    code[2:4],
-		day:      code[4:6],
-		sequence: code[6:9],
-		gender:   code[9:10],
-		checkSum: code[10:11],
-	}, nil
-}
-
-func newIntParts(parts parts) (intParts, error) {
-	year, err := strconv.Atoi(parts.year)
-	if err != nil {
-		return intParts{}, err
-	}
-
-	month, err := strconv.Atoi(parts.month)
-	if err != nil {
-		return intParts{}, err
-	}
-
-	day, err := strconv.Atoi(parts.day)
-	if err != nil {
-		return intParts{}, err
-	}
-
-	sequence, err := strconv.Atoi(parts.sequence)
-	if err != nil {
-		return intParts{}, err
-	}
-
-	gender, err := strconv.Atoi(parts.gender)
-	if err != nil {
-		return intParts{}, err
-	}
-
-	checkSum, err := strconv.Atoi(parts.checkSum)
-	if err != nil {
-		return intParts{}, err
-	}
-
-	intParts := intParts{
-		year:     year,
-		month:    month,
-		day:      day,
-		sequence: sequence,
-		gender:   gender,
-		checkSum: checkSum,
-	}
-
-	return intParts, nil
+	return p, nil
 }
