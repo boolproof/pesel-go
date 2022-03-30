@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/boolproof/pesel-go)](https://goreportcard.com/report/github.com/boolproof/pesel-go)
+
 # PESEL number validator
 Package provides validation of PESEL (the national identification number used in Poland - https://en.wikipedia.org/wiki/PESEL) for **Go**. If passed number is valid, result struct provides access to birthdate and gender extracted from the number while result error is `nil`. If number is invalid, result struct contains empty values (`nil` for birthdate) and the result error is not `nil`.
 
