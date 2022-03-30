@@ -44,17 +44,16 @@ func NewPesel(code string) (Pesel, error) {
 		return p, e
 	}
 
-	ws := []int{1, 3, 7, 9, 1, 3, 7, 9, 1, 3, 1}
-	ds := make([]int, 0, 11)
+	ws := [11]int{1, 3, 7, 9, 1, 3, 7, 9, 1, 3, 1}
+	ds := [11]int{}
 	var sum int
 
 	for i := 0; i < 11; i++ {
-		ch := string(code[i])
-		d, err := strconv.Atoi(ch)
+		d, err := strconv.Atoi(string(code[i]))
 		if err != nil {
 			return p, e
 		}
-		ds = append(ds, d)
+		ds[i] = d
 		sum += d * ws[i]
 	}
 
@@ -62,25 +61,10 @@ func NewPesel(code string) (Pesel, error) {
 		return p, e
 	}
 
-	y, m := 10*ds[0]+ds[1], 10*ds[2]+ds[3]
-
-	var year int
+	m := 10*ds[2] + ds[3]
 	mod := m / 20
-	month := m - mod*20
-	switch mod {
-	case 0:
-		year = 1900 + y
-	case 1:
-		year = 2000 + y
-	case 2:
-		year = 2100 + y
-	case 3:
-		year = 2200 + y
-	case 4:
-		year = 1800 + y
-	}
-
-	bd, err := time.Parse("20060102", fmt.Sprintf("%04d%02d%02d", year, month, 10*ds[4]+ds[5]))
+	cs := [5]int{1900, 2000, 2100, 2200, 1800}
+	bd, err := time.Parse("20060102", fmt.Sprintf("%04d%02d%02d", cs[mod]+10*ds[0]+ds[1], m-mod*20, 10*ds[4]+ds[5]))
 
 	if err != nil || 100*ds[6]+10*ds[7]+ds[8] == 0 {
 		return p, e
