@@ -13,7 +13,7 @@ const (
 )
 
 type Pesel struct {
-	code      string
+	number    string
 	gender    string
 	birthDate *Date
 }
@@ -24,23 +24,27 @@ type Date struct {
 	Day   int
 }
 
-func (p Pesel) Code() string {
-	return p.code
+//Code returns PESEL number of Pesel if number is valid (empty string otherwise)
+func (p Pesel) Number() string {
+	return p.number
 }
 
+//Gender returns gender of Pesel ("female" or "male") if number is valid (empty string otherwise)
 func (p Pesel) Gender() string {
 	return p.gender
 }
 
+//BirthDate returns birthDate of Pesel if number is valid (nil otherwiseS)
 func (p Pesel) BirthDate() *Date {
 	return p.birthDate
 }
 
-func NewPesel(code string) (Pesel, error) {
+//NewPesel creates new Pesel struct with values based on argument if it's valid
+func NewPesel(number string) (Pesel, error) {
 	p := Pesel{}
 	e := errors.New("invalid PESEL")
 
-	if len(code) != 11 {
+	if len(number) != 11 {
 		return p, e
 	}
 
@@ -49,7 +53,7 @@ func NewPesel(code string) (Pesel, error) {
 	var sum int
 
 	for i := 0; i < 11; i++ {
-		d, err := strconv.Atoi(string(code[i]))
+		d, err := strconv.Atoi(string(number[i]))
 		if err != nil {
 			return p, e
 		}
@@ -66,11 +70,16 @@ func NewPesel(code string) (Pesel, error) {
 	cs := [5]int{1900, 2000, 2100, 2200, 1800}
 	bd, err := time.Parse("20060102", fmt.Sprintf("%04d%02d%02d", cs[mod]+10*ds[0]+ds[1], m-mod*20, 10*ds[4]+ds[5]))
 
-	if err != nil || 100*ds[6]+10*ds[7]+ds[8] == 0 {
+	if err != nil {
 		return p, e
 	}
 
-	p.code = code
+	//do not allow 000 sequence number
+	// if 100*ds[6]+10*ds[7]+ds[8] == 0 {
+	// 	return p, e
+	// }
+
+	p.number = number
 	p.birthDate = &Date{
 		Year:  bd.Year(),
 		Month: bd.Month(),

@@ -7,9 +7,9 @@ import (
 
 type testCase struct {
 	title        string
-	code         string
+	number       string
 	err          bool
-	expCode      string
+	expNumber    string
 	expGender    string
 	expBirthDate string
 }
@@ -28,7 +28,7 @@ func TestNewPesel(t *testing.T) {
 		{"invalid date 3", "70010000127", true, "", "", ""},
 		{"invalid date 3", "70013200128", true, "", "", ""},
 		{"invalid date 4", "70022900129", true, "", "", ""},
-		{"invalid sequence", "70010100025", true, "", "", ""},
+		// {"invalid sequence", "70010100025", true, "", "", ""}, //do not allow 000 sequence number
 		{"invalid checkSum 1", "70010100120", true, "", "", ""},
 		{"invalid checkSum 2", "70010100121", true, "", "", ""},
 		{"invalid checkSum 3", "70010100122", true, "", "", ""},
@@ -44,6 +44,7 @@ func TestNewPesel(t *testing.T) {
 		{"correct 4", "70010110097", false, "70010110097", "male", "1970-01-01"},
 		{"correct 5", "70010199991", false, "70010199991", "male", "1970-01-01"},
 		{"correct 6", "70123100125", false, "70123100125", "female", "1970-12-31"},
+		{"correct 7", "69123100105", false, "69123100105", "female", "1969-12-31"},
 		{"correct 2000s", "70210100120", false, "70210100120", "female", "2070-01-01"},
 		{"correct 1800s", "01923100123", false, "01923100123", "female", "1801-12-31"},
 		{"correct 2100s", "00410100116", false, "00410100116", "male", "2100-01-01"},
@@ -53,7 +54,7 @@ func TestNewPesel(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		p, e := NewPesel(tc.code)
+		p, e := NewPesel(tc.number)
 		if tc.err {
 			if e == nil {
 				t.Errorf("error should not be nil (%s)", tc.title)
@@ -74,8 +75,8 @@ func TestNewPesel(t *testing.T) {
 				t.Error("expected not nil birth date")
 			}
 		}
-		if p.Code() != tc.expCode {
-			t.Errorf("expected code: %s, got: %s", tc.expCode, p.Code())
+		if p.Number() != tc.expNumber {
+			t.Errorf("expected code: %s, got: %s", tc.expNumber, p.Number())
 		}
 		if p.Gender() != tc.expGender {
 			t.Errorf("expected gender: %s, got: %s", tc.expGender, p.Gender())
