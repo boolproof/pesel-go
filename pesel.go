@@ -15,7 +15,7 @@ const (
 type Pesel struct {
 	number    string
 	gender    string
-	birthDate *Date
+	birthDate Date
 }
 
 type Date struct {
@@ -34,8 +34,8 @@ func (p Pesel) Gender() string {
 	return p.gender
 }
 
-//BirthDate returns birthDate of Pesel if number is valid (nil otherwiseS)
-func (p Pesel) BirthDate() *Date {
+//BirthDate returns birthDate of Pesel
+func (p Pesel) BirthDate() Date {
 	return p.birthDate
 }
 
@@ -74,13 +74,8 @@ func NewPesel(number string) (Pesel, error) {
 		return p, e
 	}
 
-	//do not allow 000 sequence number
-	// if 100*ds[6]+10*ds[7]+ds[8] == 0 {
-	// 	return p, e
-	// }
-
 	p.number = number
-	p.birthDate = &Date{
+	p.birthDate = Date{
 		Year:  bd.Year(),
 		Month: bd.Month(),
 		Day:   bd.Day(),
